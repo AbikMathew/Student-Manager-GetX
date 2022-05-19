@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getx_counter_second/model/student_model.dart';
 import 'package:getx_counter_second/repository/box_repository.dart';
-import 'package:getx_counter_second/screens/home_page.dart';
+import 'package:getx_counter_second/screens/home_screen/home_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async{
