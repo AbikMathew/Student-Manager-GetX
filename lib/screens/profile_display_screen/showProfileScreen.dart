@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -22,6 +24,23 @@ class ShowProfileScreen extends StatelessWidget {
         children: [
           Column(
             children: [
+              GestureDetector(
+                // onTap: () => pickImage(),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    height: 100,
+                    width: 100,
+                    //  color: Colors.blueGrey,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: FileImage(File(student.imagePath)),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 200, width: 200),
               Row(
                 children: [const Text('Name'), Text(student.name)],

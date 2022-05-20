@@ -20,7 +20,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final controller = Get.put(
       StudentController()); //Controller class: Create, Update, Delete functions
 
-  File? image;
+  //Rx<File>? image;
+  var image = ''.obs;
+
   final TextEditingController sNameTEController = TextEditingController();
   final TextEditingController sAgeTEController = TextEditingController();
   final TextEditingController sPhoneTEController = TextEditingController();
@@ -38,13 +40,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future pickImage() async {
     try {
+      //  final image = await ImagePicker().pickImage(source: ImageSource.camera);
       final image = await ImagePicker().pickImage(source: ImageSource.camera);
       if (image == null) return;
-      final imageTemp = File(image.path);
-      print('കിട്ടി കൂട്ട image ഇന്നും ഇന്നാലെമ ആണോ നമ്മൾ കാണാൻ $imageTemp');
-      setState(() => this.image = imageTemp);
+      // final imageTemp = File(image.path);
+
+      this.image.value = image.path;
+      // this.image = imageTemp.obs;
+
+      //setState(() => this.image = imageTemp);
     } on PlatformException catch (e) {
-      print('എടാ മോനേ Failed to pick image due to exception $e');
+      // ignore: avoid_print
+      print('Failed to pick image due to exception $e');
     }
   }
 
@@ -58,15 +65,24 @@ class _HomeScreenState extends State<HomeScreen> {
             itemBuilder: (context, index) {
               print(controller.boxCount);
               if (controller.boxCount > 0) {
-                // List<dynamic> student1 =
-                //     controller.observableBox.values.toList();
-
                 StudentModel? student = controller.observableBox.getAt(index);
                 return Card(
                     child: ListTile(
-                  onTap: () => Get.to(ShowProfileScreen(
-                    index: index,
-                  )),
+                  onTap: () => Get.to(
+                    ShowProfileScreen(
+                      index: index,
+                    ),
+                  ),
+                  leading: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: FileImage(File(student?.imagePath ?? 'abc.jpg')),
+                      ),
+                    ),
+                  ),
                   title: Text(student?.name ?? "n/a"),
                   subtitle: Text(student?.standard ?? "n/a"),
                   trailing: Row(
@@ -108,11 +124,13 @@ class _HomeScreenState extends State<HomeScreen> {
           sAgeTEController.text = student.age.toString();
           sPhoneTEController.text = student.phoneNumber.toString();
           sStdTEController.text = student.standard.toString();
+          image.value = student.imagePath;
         } else {
           sAgeTEController.clear();
           sNameTEController.clear();
           sPhoneTEController.clear();
           sStdTEController.clear();
+          image.value = '';
         }
 
         return Material(
@@ -122,21 +140,47 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(8.0),
                 child: ListView(
                   children: [
-                    GestureDetector(
-                      onTap: () => pickImage(),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Container(
-                          height: 100,
-                          width: 100,
-                        //  color: Colors.blueGrey,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: FileImage(image!))),
+                    kHeight,
+                    kHeight,
+                    Center(
+                      child: GestureDetector(
+                        onTap: () => pickImage(),
+                        child: Obx(
+                          () => image.value ==
+                                  '' //if image if null, show container; otherwiese Image.file
+                              ? Container(
+                                  height: 140,
+                                  width: 140,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.blueGrey,
+                                  ),
+                                )
+                              : Image.file(
+                                  File(image.value),
+                                  height: 140,
+                                  width: 140,
+                                ),
                         ),
                       ),
                     ),
+                    // GestureDetector(
+                    //   onTap: () => pickImage(),
+                    //   child: Align(
+                    //     alignment: Alignment.center,
+                    //     child: Container(
+                    //       height: 100,
+                    //       width: 100,
+                    //       decoration: BoxDecoration(
+                    //         image: DecorationImage(
+                    //           fit: BoxFit.cover,
+                    //           image: FileImage(image!),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    //   ),
                     kHeight,
                     kHeight,
                     CustomInputField(
@@ -173,6 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
           int stdAge = int.parse(sAgeTEController.text);
           int stdPhone = int.parse(sPhoneTEController.text);
           String stdStandard = sStdTEController.text;
+          String imagePath = image.value;
 
           if (index != null) {
             controller.updateStundent(
@@ -181,14 +226,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     name: stdName,
                     age: stdAge,
                     phoneNumber: stdPhone,
-                    standard: stdStandard));
+                    standard: stdStandard,
+                    imagePath: imagePath));
           } else {
             controller.createStudent(
                 student: StudentModel(
                     name: stdName,
                     age: stdAge,
                     phoneNumber: stdPhone,
-                    standard: stdStandard));
+                    standard: stdStandard,
+                    imagePath: imagePath));
           }
           print(
               "checking for box ${controller.observableBox.values.toList().toString()}");
