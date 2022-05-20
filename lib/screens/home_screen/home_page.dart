@@ -20,9 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final controller = Get.put(
       StudentController()); //Controller class: Create, Update, Delete functions
 
-  //Rx<File>? image;
-  var image = ''.obs;
-
+  final image = ''.obs;
   final TextEditingController sNameTEController = TextEditingController();
   final TextEditingController sAgeTEController = TextEditingController();
   final TextEditingController sPhoneTEController = TextEditingController();
@@ -40,15 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future pickImage() async {
     try {
-      //  final image = await ImagePicker().pickImage(source: ImageSource.camera);
       final image = await ImagePicker().pickImage(source: ImageSource.camera);
       if (image == null) return;
-      // final imageTemp = File(image.path);
 
       this.image.value = image.path;
-      // this.image = imageTemp.obs;
-
-      //setState(() => this.image = imageTemp);
     } on PlatformException catch (e) {
       // ignore: avoid_print
       print('Failed to pick image due to exception $e');
@@ -58,30 +51,43 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Student Manager')),
+      backgroundColor: kBGreyBg,
+      appBar: AppBar(
+        title: const Text('Student Manager'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sort),
+            onPressed: () {},
+          ),
+          kWidth,
+          IconButton(
+            icon: const Icon(Icons.date_range),
+            onPressed: () {},
+          ),
+          kWidth
+        ],
+      ),
       body: GetBuilder<StudentController>(
-        builder: (cntrlerNotUsed) => ListView.builder(
+        builder: (controllerNotUsed) => ListView.builder(
             itemCount: controller.boxCount,
             itemBuilder: (context, index) {
               print(controller.boxCount);
               if (controller.boxCount > 0) {
+
                 StudentModel? student = controller.observableBox.getAt(index);
+
                 return Card(
                     child: ListTile(
+                  tileColor: Colors.blueGrey.shade50,
                   onTap: () => Get.to(
                     ShowProfileScreen(
                       index: index,
                     ),
                   ),
-                  leading: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: FileImage(File(student?.imagePath ?? 'abc.jpg')),
-                      ),
-                    ),
+                  leading: CircleAvatar(
+                    radius: 30,
+                    backgroundImage:
+                        FileImage(File(student?.imagePath ?? 'abc.jpg')),
                   ),
                   title: Text(student?.name ?? "n/a"),
                   subtitle: Text(student?.standard ?? "n/a"),

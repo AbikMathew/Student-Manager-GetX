@@ -5,8 +5,7 @@ import 'package:getx_counter_second/repository/box_repository.dart';
 import 'package:getx_counter_second/screens/home_screen/home_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-void main() async{
-
+void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(StudentModelAdapter());
   await BoxRepository.openBox();
@@ -19,9 +18,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(
-      home: HomeScreen(),
+    return GetMaterialApp(
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.blueGrey),
+      ),
+      home: const HomeScreen(),
     );
-      
   }
 }
