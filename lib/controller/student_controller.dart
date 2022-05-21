@@ -4,8 +4,8 @@ import 'package:getx_counter_second/repository/box_repository.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class StudentController extends GetxController {
-  final Box _observableBox = BoxRepository.getBox();
-  Box get observableBox => _observableBox; // You saw that this is unwanted find out why dart don't need to use getter and setter just to be safe.
+  final Box<StudentModel> _observableBox = BoxRepository.getBox();
+  Box<StudentModel> get observableBox => _observableBox; // You saw that this is unwanted find out why dart don't need to use getter and setter just to be safe.
 
   int get boxCount => _observableBox.length;
 

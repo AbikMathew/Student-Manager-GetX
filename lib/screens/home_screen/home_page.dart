@@ -1,5 +1,5 @@
+import 'dart:collection';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -17,6 +17,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Rx<bool> isDescending = false.obs;
+  HashSet<StudentModel> selectedItem = HashSet();
+
   final controller = Get.put(
       StudentController()); //Controller class: Create, Update, Delete functions
 
@@ -57,7 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.sort),
-            onPressed: () {},
+            onPressed: () {
+              isDescending.value = true;
+            },
           ),
           kWidth,
           IconButton(
@@ -68,57 +73,79 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: GetBuilder<StudentController>(
-        builder: (controllerNotUsed) => ListView.builder(
-            itemCount: controller.boxCount,
-            itemBuilder: (context, index) {
-              print(controller.boxCount);
-              if (controller.boxCount > 0) {
+        builder: (controllerNotUsed) {
+          List<StudentModel> studentList =
+              controller.observableBox.values.toList();
 
-                StudentModel? student = controller.observableBox.getAt(index);
+          studentList.sort((a, b) => a.name.compareTo(b.name));
 
-                return Card(
-                    child: ListTile(
-                  tileColor: Colors.blueGrey.shade50,
-                  onTap: () => Get.to(
-                    ShowProfileScreen(
-                      index: index,
-                    ),
-                  ),
-                  leading: CircleAvatar(
-                    radius: 30,
-                    backgroundImage:
-                        FileImage(File(student?.imagePath ?? 'abc.jpg')),
-                  ),
-                  title: Text(student?.name ?? "n/a"),
-                  subtitle: Text(student?.standard ?? "n/a"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            print('Index issssssss $index');
-                            controller.deleteStundent(index: index);
-                          },
-                          icon: const Icon(Icons.delete)),
-                      IconButton(
-                          onPressed: () =>
-                              addEditStudent(index: index, student: student),
-                          icon: const Icon(Icons.edit)),
-                    ],
-                  ),
-                ));
-              } else {
-                return const Center(
-                  child: Text('No student data available'),
-                );
-              }
-            }),
+          return ListView.builder(
+              itemCount: studentList.length,
+              itemBuilder: (context, index) {
+                StudentModel student = studentList[index];
+
+                void doMultiselect(StudentModel student) {
+                  if (selectedItem.contains(student)) {
+                    selectedItem.remove(student);
+                  } else {
+                    selectedItem.add(student);
+                  }
+                  setState(() {});
+                }
+
+                return studentCard(index, student);
+              });
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (() => addEditStudent()),
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Card studentCard(int index, StudentModel student) {
+    return Card(
+        child: ListTile(
+      tileColor: Colors.blueGrey.shade50,
+      //  onLongPress: ,
+      onTap: () => Get.to(
+        () => ShowProfileScreen(
+          //    index: index,
+          name: student.name,
+          age: student.age,
+          standard: student.standard,
+          phone: student.phoneNumber,
+          imagePath: student.imagePath,
+        ),
+      ),
+      leading: CircleAvatar(
+        radius: 30,
+        backgroundImage:
+            //  FileImage(File(student?.imagePath ?? 'abc.jpg')),
+            FileImage(File(student.imagePath)),
+      ),
+      title:
+          // Text(student?.name ?? "n/a"),
+          Text(student.name),
+      subtitle:
+          //Text(student?.standard ?? "n/a"),
+          Text(student.standard),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+              onPressed: () {
+                print('Index issssssss $index');
+                controller.deleteStundent(index: index);
+              },
+              icon: const Icon(Icons.delete)),
+          IconButton(
+              onPressed: () => addEditStudent(index: index, student: student),
+              icon: const Icon(Icons.edit)),
+        ],
+      ),
+    ));
   }
 
   addEditStudent({int? index, StudentModel? student}) {
@@ -170,23 +197,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    // GestureDetector(
-                    //   onTap: () => pickImage(),
-                    //   child: Align(
-                    //     alignment: Alignment.center,
-                    //     child: Container(
-                    //       height: 100,
-                    //       width: 100,
-                    //       decoration: BoxDecoration(
-                    //         image: DecorationImage(
-                    //           fit: BoxFit.cover,
-                    //           image: FileImage(image!),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    //   ),
                     kHeight,
                     kHeight,
                     CustomInputField(

@@ -1,25 +1,31 @@
 import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:get/get.dart';
 import 'package:getx_counter_second/constants/constants.dart';
-import 'package:getx_counter_second/controller/student_controller.dart';
-
-import '../../model/student_model.dart';
 
 class ShowProfileScreen extends StatelessWidget {
-  const ShowProfileScreen({Key? key, required this.index}) : super(key: key);
-  final int index;
+  const ShowProfileScreen(
+      {Key? key,
+  //    required this.index,
+      required this.name,
+      required this.age,
+      required this.standard,
+      required this.phone,
+      required this.imagePath})
+      : super(key: key);
+
+  final String name;
+  final int age;
+  final String standard;
+  final int phone;
+  final String imagePath;
+ // final int index;
   @override
   Widget build(BuildContext context) {
-    StudentController controller = Get.find();
-    StudentModel student = controller.observableBox.getAt(index);
+    // StudentController controller = Get.find();
+    // StudentModel student = controller.observableBox.getAt(index)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(student.name), centerTitle: true),
+      appBar: AppBar(title: Text(name), centerTitle: true),
       backgroundColor: kBGreyBg,
       body: ListView(
         children: [
@@ -34,7 +40,7 @@ class ShowProfileScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: FileImage(File(student.imagePath)),
+                        image: FileImage(File(imagePath)),
                       ),
                     ),
                   ),
@@ -42,21 +48,18 @@ class ShowProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 200, width: 200),
               Row(
-                children: [const Text('Name:'), Text(student.name)],
+                children: [const Text('Name:'), Text(name)],
               ),
               Row(
                 children: [
                   const Text('Class'),
-                  Text(student.standard),
+                  Text(standard),
                   const Text('Age'),
-                  Text(student.age.toString())
+                  Text(age.toString())
                 ],
               ),
               Row(
-                children: [
-                  const Text('Phone:'),
-                  Text(student.phoneNumber.toString())
-                ],
+                children: [const Text('Phone:'), Text(phone.toString())],
               ),
             ],
           )
