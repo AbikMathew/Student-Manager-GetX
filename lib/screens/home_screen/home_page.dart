@@ -19,7 +19,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Rx<bool> isDescending = false.obs;
 
-  HashSet<StudentModel> selectedItem = HashSet();
+  List<StudentModel> selectedItem = [];
+
   bool isMultiSelectionEnabled = false;
 
   final controller = Get.put(
@@ -75,10 +76,11 @@ class _HomeScreenState extends State<HomeScreen> {
             : 'Student Manager'),
         actions: [
           isMultiSelectionEnabled
-              ? IconButton(onPressed: () {
-               deleteMultiSelected();
-
-              }, icon: const Icon(Icons.delete))
+              ? IconButton(
+                  onPressed: () {
+                    deleteMultiSelected();
+                  },
+                  icon: const Icon(Icons.delete))
               : IconButton(
                   icon: const Icon(Icons.sort),
                   onPressed: () {
@@ -100,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: studentList.length,
               itemBuilder: (context, index) {
                 StudentModel student = studentList[index];
-
+                // print(student.key);
                 return studentCard(index, student);
               });
         },
@@ -112,16 +114,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  deleteMultiSelected(){
-    print(selectedItem);
-
-    // FIXXXXXXXXXXXXXXXXXX
-    
-    // for (var i = 0; i < selectedItem.length; i++) {
-    //   selectedItem;
-    // }
-       //controller.deleteStundent(index: index);
+  deleteMultiSelected() {
+    for (var i = 0; i < selectedItem.length; i++) {
+      controller.deleteStundentKey(key: selectedItem[i].key);
+    }
   }
+
   void doMultiselect(StudentModel student) {
     if (isMultiSelectionEnabled) {
       if (selectedItem.contains(student)) {

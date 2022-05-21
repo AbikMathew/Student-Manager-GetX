@@ -5,11 +5,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 class StudentController extends GetxController {
   final Box<StudentModel> _observableBox = BoxRepository.getBox();
-  Box<StudentModel> get observableBox => _observableBox; // You saw that this is unwanted find out why dart don't need to use getter and setter just to be safe.
+  Box<StudentModel> get observableBox =>
+      _observableBox; // You saw that this is unwanted find out why dart don't need to use getter and setter just to be safe.
 
   int get boxCount => _observableBox.length;
 
-  createStudent({required StudentModel student}) { // Find if it's neccessary to add this required here, or simply write StudentModel student
+  createStudent({required StudentModel student}) {
+    // Find if it's neccessary to add this required here, or simply write StudentModel student
     _observableBox.add(student);
     update();
   }
@@ -21,6 +23,11 @@ class StudentController extends GetxController {
 
   deleteStundent({required int index}) {
     _observableBox.deleteAt(index);
+    update();
+  }
+
+  deleteStundentKey({required int key}) {
+    _observableBox.delete(key);
     update();
   }
 }

@@ -5,7 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 part 'student_model.g.dart';
 
 @HiveType(typeId: 1)
-class StudentModel {
+class StudentModel extends HiveObject{
   StudentModel(
       {required this.name,
       required this.age,
