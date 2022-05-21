@@ -18,7 +18,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Rx<bool> isDescending = false.obs;
+
   HashSet<StudentModel> selectedItem = HashSet();
+  bool isMultiSelectionEnabled = false;
 
   final controller = Get.put(
       StudentController()); //Controller class: Create, Update, Delete functions
@@ -56,20 +58,35 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: kBGreyBg,
       appBar: AppBar(
-        title: const Text('Student Manager'),
+        leading: isMultiSelectionEnabled
+            ? IconButton(
+                onPressed: () {
+                  selectedItem.clear();
+                  isMultiSelectionEnabled = false;
+                  setState(() {});
+                },
+                icon: const Icon(
+                  Icons.close,
+                  size: 35,
+                ))
+            : null,
+        title: Text(isMultiSelectionEnabled
+            ? getSelectedItemCount()
+            : 'Student Manager'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.sort),
-            onPressed: () {
-              isDescending.value = true;
-            },
-          ),
+          isMultiSelectionEnabled
+              ? IconButton(onPressed: () {
+               deleteMultiSelected();
+
+              }, icon: const Icon(Icons.delete))
+              : IconButton(
+                  icon: const Icon(Icons.sort),
+                  onPressed: () {
+                    isDescending.value = true;
+                  },
+                ),
           kWidth,
-          IconButton(
-            icon: const Icon(Icons.date_range),
-            onPressed: () {},
-          ),
-          kWidth
+          kWidth5
         ],
       ),
       body: GetBuilder<StudentController>(
@@ -84,15 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
               itemBuilder: (context, index) {
                 StudentModel student = studentList[index];
 
-                void doMultiselect(StudentModel student) {
-                  if (selectedItem.contains(student)) {
-                    selectedItem.remove(student);
-                  } else {
-                    selectedItem.add(student);
-                  }
-                  setState(() {});
-                }
-
                 return studentCard(index, student);
               });
         },
@@ -104,12 +112,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Card studentCard(int index, StudentModel student) {
-    return Card(
-        child: ListTile(
-      tileColor: Colors.blueGrey.shade50,
-      //  onLongPress: ,
-      onTap: () => Get.to(
+  deleteMultiSelected(){
+    print(selectedItem);
+
+    // FIXXXXXXXXXXXXXXXXXX
+    
+    // for (var i = 0; i < selectedItem.length; i++) {
+    //   selectedItem;
+    // }
+       //controller.deleteStundent(index: index);
+  }
+  void doMultiselect(StudentModel student) {
+    if (isMultiSelectionEnabled) {
+      if (selectedItem.contains(student)) {
+        selectedItem.remove(student);
+      } else {
+        selectedItem.add(student);
+      }
+      setState(() {});
+    } else {
+      Get.to(
         () => ShowProfileScreen(
           //    index: index,
           name: student.name,
@@ -118,34 +140,79 @@ class _HomeScreenState extends State<HomeScreen> {
           phone: student.phoneNumber,
           imagePath: student.imagePath,
         ),
-      ),
-      leading: CircleAvatar(
-        radius: 30,
-        backgroundImage:
-            //  FileImage(File(student?.imagePath ?? 'abc.jpg')),
-            FileImage(File(student.imagePath)),
-      ),
-      title:
-          // Text(student?.name ?? "n/a"),
-          Text(student.name),
-      subtitle:
-          //Text(student?.standard ?? "n/a"),
-          Text(student.standard),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-              onPressed: () {
-                print('Index issssssss $index');
-                controller.deleteStundent(index: index);
-              },
-              icon: const Icon(Icons.delete)),
-          IconButton(
-              onPressed: () => addEditStudent(index: index, student: student),
-              icon: const Icon(Icons.edit)),
-        ],
-      ),
-    ));
+      );
+    }
+  }
+
+  String getSelectedItemCount() {
+    return selectedItem.isNotEmpty
+        ? "${selectedItem.length} Items selected"
+        : "No items selected";
+  }
+
+  Stack studentCard(int index, StudentModel student) {
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: [
+        Card(
+          child: ListTile(
+            tileColor: Colors.blueGrey.shade50,
+            onLongPress: () {
+              isMultiSelectionEnabled = true;
+              doMultiselect(student);
+            },
+            onTap: () {
+              doMultiselect(student);
+            },
+            leading: CircleAvatar(
+              radius: 30,
+              backgroundImage:
+                  //  FileImage(File(student?.imagePath ?? 'abc.jpg')),
+                  FileImage(File(student.imagePath)),
+            ),
+            title:
+                // Text(student?.name ?? "n/a"),
+                Text(student.name),
+            subtitle:
+                //Text(student?.standard ?? "n/a"),
+                Text(student.standard),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                    onPressed: () {
+                      print('Index issssssss $index');
+                      controller.deleteStundent(index: index);
+                    },
+                    icon: const Icon(Icons.delete)),
+                IconButton(
+                    onPressed: () =>
+                        addEditStudent(index: index, student: student),
+                    icon: const Icon(Icons.edit)),
+              ],
+            ),
+          ),
+        ),
+        Visibility(
+            visible: isMultiSelectionEnabled,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                selectedItem.contains(student)
+                    ? const Icon(
+                        Icons.radio_button_checked,
+                        size: 55,
+                      )
+                    : const Icon(
+                        Icons.radio_button_unchecked,
+                        size: 55,
+                      ),
+                kWidth,
+                kWidth5
+              ],
+            ))
+      ],
+    );
   }
 
   addEditStudent({int? index, StudentModel? student}) {
@@ -225,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return ElevatedButton.icon(
       style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(Colors.blueGrey)),
-      label: Text('Submit'),
+      label: const Text('Submit'),
       onPressed: () {
         bool? isValidated = formKey.currentState?.validate();
         if (isValidated == true) {
