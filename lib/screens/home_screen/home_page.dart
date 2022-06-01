@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,11 +16,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Rx<bool> isDescending = false.obs;
-
   List<StudentModel> selectedItem = [];
 
-  bool isMultiSelectionEnabled = false;
+  final isMultiSelectionEnabled = false.obs;
 
   final controller = Get.put(
       StudentController()); //Controller class: Create, Update, Delete functions
@@ -59,11 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: kBGreyBg,
       appBar: AppBar(
-        leading: isMultiSelectionEnabled
+        leading: isMultiSelectionEnabled.value
             ? IconButton(
                 onPressed: () {
                   selectedItem.clear();
-                  isMultiSelectionEnabled = false;
+                  isMultiSelectionEnabled.value = false;
                   setState(() {});
                 },
                 icon: const Icon(
@@ -71,20 +68,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   size: 35,
                 ))
             : null,
-        title: Text(isMultiSelectionEnabled
+        title: Text(isMultiSelectionEnabled.value
             ? getSelectedItemCount()
             : 'Student Manager'),
         actions: [
-          isMultiSelectionEnabled
+          isMultiSelectionEnabled.value
               ? IconButton(
                   onPressed: () {
                     deleteMultiSelected();
                   },
                   icon: const Icon(Icons.delete))
               : IconButton(
-                  icon: const Icon(Icons.sort),
+                  icon: Icon(controller.isDescending.value
+                      ? Icons.sort
+                      : Icons.sort_sharp),
                   onPressed: () {
-                    isDescending.value = true;
+                    controller.isDescending.value
+                        ? setState(() {
+                            controller.isDescending.value = false;
+                          })
+                        : setState(() {
+                            controller.isDescending.value = true;
+                          });
+                    //
                   },
                 ),
           kWidth,
@@ -96,15 +102,22 @@ class _HomeScreenState extends State<HomeScreen> {
           List<StudentModel> studentList =
               controller.observableBox.values.toList();
 
-          studentList.sort((a, b) => a.name.compareTo(b.name));
+          controller.isDescending.value
+              ? studentList.sort((a, b) => b.name.compareTo(a.name))
+              : studentList.sort((a, b) => a.name.compareTo(b.name));
+
+          // if (controllerNotUsed.isDescending.value) {
+          //   studentList.reversed;
+          // }
 
           return ListView.builder(
-              itemCount: studentList.length,
-              itemBuilder: (context, index) {
-                StudentModel student = studentList[index];
-                // print(student.key);
-                return studentCard(index, student);
-              });
+            itemCount: studentList.length,
+            itemBuilder: (context, index) {
+              StudentModel student = studentList[index];
+              // print(student.key);
+              return studentCard(index, student);
+            },
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -118,10 +131,13 @@ class _HomeScreenState extends State<HomeScreen> {
     for (var i = 0; i < selectedItem.length; i++) {
       controller.deleteStundentKey(key: selectedItem[i].key);
     }
+    isMultiSelectionEnabled.value = false;
+    selectedItem.clear();
+    setState(() {});
   }
 
-  void doMultiselect(StudentModel student) {
-    if (isMultiSelectionEnabled) {
+  void doMultiselect(StudentModel student, int index) {
+    if (isMultiSelectionEnabled.value) {
       if (selectedItem.contains(student)) {
         selectedItem.remove(student);
       } else {
@@ -131,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       Get.to(
         () => ShowProfileScreen(
-          //    index: index,
+             index: index,
           name: student.name,
           age: student.age,
           standard: student.standard,
@@ -156,11 +172,11 @@ class _HomeScreenState extends State<HomeScreen> {
           child: ListTile(
             tileColor: Colors.blueGrey.shade50,
             onLongPress: () {
-              isMultiSelectionEnabled = true;
-              doMultiselect(student);
+              isMultiSelectionEnabled.value = true;
+              doMultiselect(student,index);
             },
             onTap: () {
-              doMultiselect(student);
+              doMultiselect(student,index);
             },
             leading: CircleAvatar(
               radius: 30,
@@ -192,17 +208,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         Visibility(
-            visible: isMultiSelectionEnabled,
+            visible: isMultiSelectionEnabled.value,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 selectedItem.contains(student)
                     ? const Icon(
                         Icons.radio_button_checked,
+                        color: kBGrey,
                         size: 55,
                       )
                     : const Icon(
                         Icons.radio_button_unchecked,
+                        color: kBGrey,
                         size: 55,
                       ),
                 kWidth,
@@ -244,8 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: GestureDetector(
                         onTap: () => pickImage(),
                         child: Obx(
-                          () => image.value ==
-                                  '' //if image if null, show container; otherwiese Image.file
+                          () => image.value == '' //if image if null, show container; otherwise Image.file
                               ? Container(
                                   height: 140,
                                   width: 140,
@@ -286,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  ElevatedButton submitButton(int? index) {
+  ElevatedButton  submitButton(int? index) {
     return ElevatedButton.icon(
       style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(Colors.blueGrey)),

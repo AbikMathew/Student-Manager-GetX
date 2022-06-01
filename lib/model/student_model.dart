@@ -1,7 +1,6 @@
-import 'dart:collection';
 
-import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 part 'student_model.g.dart';
 
 @HiveType(typeId: 1)
@@ -11,7 +10,8 @@ class StudentModel extends HiveObject{
       required this.age,
       required this.phoneNumber,
       required this.standard,
-      required this.imagePath});
+      required this.imagePath,
+      this.imageList});
 
   @HiveField(0)
   String name;
@@ -27,6 +27,9 @@ class StudentModel extends HiveObject{
 
   @HiveField(5)
   String imagePath;
+
+  @HiveField(7)
+  List<String>? imageList = [];
 
   //  @override
   // List<Object> get props => [name, age, phoneNumber, standard, imagePath];

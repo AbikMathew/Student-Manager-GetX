@@ -7,3 +7,7 @@ const kHeight = SizedBox(height: 10);
 //Colors
 
 final Color kBGreyBg = Colors.blueGrey.shade100;
+const Color kBGrey = Colors.blueGrey;
+
+
+//create constant color blue
