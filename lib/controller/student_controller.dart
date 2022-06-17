@@ -10,6 +10,7 @@ class StudentController extends GetxController {
       _observableBox; // You saw that this is unwanted find out why dart don't need to use getter and setter just to be safe.
 
   int get boxCount => _observableBox.length;
+  Rx<bool> isDescending = false.obs;
 
   createStudent({required StudentModel student}) {
     // Find if it's neccessary to add this required here, or simply write StudentModel student
@@ -32,15 +33,10 @@ class StudentController extends GetxController {
     update();
   }
 
-  // addImageList({required int index, required List<String> imageList}) {
-  //   //_observableBox.At(index)!.imageList?.addAll(imageList);
-  //   _observableBox.getAt(index)!.imageList?.addAll(imageList);
-  //   update();
-  //   print('Ith vanooooo index $index');
-  //   print(_observableBox.getAt(index)!.imageList);
-  //   print(_observableBox.getAt(index)!.age);
+  searchStudent() {}
 
-  // }
-
-  Rx<bool> isDescending = false.obs;
+  changeOrder() {
+    isDescending.value ? isDescending = false.obs : isDescending = true.obs;
+    update();
+  }
 }

@@ -78,20 +78,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     deleteMultiSelected();
                   },
                   icon: const Icon(Icons.delete))
-              : IconButton(
-                  icon: Icon(controller.isDescending.value
-                      ? Icons.sort
-                      : Icons.sort_sharp),
-                  onPressed: () {
-                    controller.isDescending.value
-                        ? setState(() {
-                            controller.isDescending.value = false;
-                          })
-                        : setState(() {
-                            controller.isDescending.value = true;
-                          });
-                    //
-                  },
+              : Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(controller.isDescending.value
+                          ? Icons.sort
+                          : Icons.sort_sharp),
+                      onPressed: () {
+                        controller.changeOrder();
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.search),
+                      onPressed: () {
+                        controller.searchStudent();
+                      },
+                    ),
+                  ],
                 ),
           kWidth,
           kWidth5
@@ -147,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       Get.to(
         () => ShowProfileScreen(
-             index: index,
+          index: index,
           name: student.name,
           age: student.age,
           standard: student.standard,
@@ -173,10 +176,10 @@ class _HomeScreenState extends State<HomeScreen> {
             tileColor: Colors.blueGrey.shade50,
             onLongPress: () {
               isMultiSelectionEnabled.value = true;
-              doMultiselect(student,index);
+              doMultiselect(student, index);
             },
             onTap: () {
-              doMultiselect(student,index);
+              doMultiselect(student, index);
             },
             leading: CircleAvatar(
               radius: 30,
@@ -262,7 +265,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: GestureDetector(
                         onTap: () => pickImage(),
                         child: Obx(
-                          () => image.value == '' //if image if null, show container; otherwise Image.file
+                          () => image.value ==
+                                  '' //if image if null, show container; otherwise Image.file
                               ? Container(
                                   height: 140,
                                   width: 140,
@@ -303,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  ElevatedButton  submitButton(int? index) {
+  ElevatedButton submitButton(int? index) {
     return ElevatedButton.icon(
       style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(Colors.blueGrey)),
