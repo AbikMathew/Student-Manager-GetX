@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     IconButton(
                       icon: const Icon(Icons.search),
                       onPressed: () {
-                        controller.searchStudent();
+                        controller.searchStudent(context);
                       },
                     ),
                   ],
